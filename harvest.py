@@ -234,11 +234,11 @@ class Harvest(object):
         setattr( self, klass.element_name, _get_item )
 
         def _get_items(**kwargs):
-            if getattr( self, flag_name ):
+            query = urllib.urlencode(kwargs)
+            if not query and getattr( self, flag_name ):
                 for item in cache.values():
                     yield item
             else:
-                query = urllib.urlencode(kwargs)
                 url = '%s?%s' % (klass.base_url, query)
                 for element in self._get_element_values( url, klass.element_name ):
                     item = klass( self, element )
