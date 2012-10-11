@@ -3,6 +3,7 @@
 See http://www.getharvest.com/api
 
 '''
+import urllib
 import urllib2
 from base64 import b64encode
 from dateutil.parser import parse as parseDate
@@ -232,17 +233,20 @@ class Harvest(object):
 
         setattr( self, klass.element_name, _get_item )
 
-        def _get_items():
+        def _get_items(**kwargs):
             if getattr( self, flag_name ):
                 for item in cache.values():
                     yield item
             else:
-                for element in self._get_element_values( klass.base_url, klass.element_name ):
+                query = urllib.urlencode(kwargs)
+                url = '%s?%s' % (klass.base_url, query)
+                for element in self._get_element_values( url, klass.element_name ):
                     item = klass( self, element )
                     cache[ item.id ] = item
                     yield item
 
-                setattr( self, flag_name, True )
+                if not query:
+                    setattr( self, flag_name, True )
 
         setattr( self, klass.plural_name, _get_items )
 
